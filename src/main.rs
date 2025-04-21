@@ -1,10 +1,12 @@
 mod commands;
 mod models;
 mod utils;
+mod generator;
 
 use anyhow::Result;
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use commands::{Cli, Commands};
+use generator::print_completions;
 use models::Config;
 use utils::path::expand_tilde;
 
@@ -46,6 +48,14 @@ fn main() -> Result<()> {
         Commands::Diff { name, tool, word } => {
             let config = Config::load(&repo_path)?;
             commands::show_diff(&config, &name, tool, word)
+        }
+        Commands::Completion { shell } => {
+            let mut cmd = Cli::command();
+            cmd.set_bin_name("dotzilla");
+            if let Some(shell) = shell {
+                print_completions(shell, &mut cmd);
+            }
+            Ok(())
         }
     }
 }

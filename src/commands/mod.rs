@@ -10,6 +10,7 @@ mod status;
 mod unstage;
 
 pub use add::add_dotfile;
+use clap_complete::Shell;
 pub use diff::show_diff;
 pub use init::init_repo;
 pub use link::link_dotfiles;
@@ -18,7 +19,7 @@ pub use stage::stage_dotfile;
 pub use status::show_status;
 pub use unstage::unstage_dotfile;
 
-#[derive(Parser)]
+#[derive(Parser, )]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
@@ -77,5 +78,10 @@ pub enum Commands {
         /// Show a word-by-word diff instead of line-by-line
         #[arg(short, long)]
         word: bool,
+    },
+
+    Completion {
+        /// Generate shell completion script
+        shell: Option<Shell>,
     },
 }
