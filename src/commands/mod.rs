@@ -25,7 +25,7 @@ pub struct Cli {
     pub command: Commands,
 
     /// Path to the dotfiles repository
-    #[arg(short, long, default_value = "~/dotfiles")]
+    #[arg(short, long, default_value = "~/dotfiles", env = "DOTZILLA_REPO")]
     pub repo: String,
 }
 
@@ -34,7 +34,7 @@ pub enum Commands {
     /// Initialize a new dotzilla repository
     Init {
         /// Path to initialize the dotfiles repository
-        #[arg(default_value = "~/dotfiles")]
+        #[arg(default_value = "~/dotfiles", env = "DOTZILLA_REPO")]
         path: String,
     },
 

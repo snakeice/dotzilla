@@ -6,7 +6,7 @@ description = "A CLI tool to manage dotfiles with symbolic linking and staging c
 authors = ["Rodrigo Bernardi <rodrigo@rbernardi.dev>"]
 
 [dependencies]
-clap = { version = "4.5", features = ["derive"] }
+clap = { version = "4.5", features = ["derive", "env"] }
 anyhow = "1.0"
 home = "0.5"
 log = "0.4"

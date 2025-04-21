@@ -13,6 +13,15 @@ pub fn init_repo(path: PathBuf) -> Result<()> {
         println!("{} Created directory at {}", "✓".green(), path.display());
     }
 
+    if Config::load(&path).is_ok() {
+        println!(
+            "{} Dotzilla repository already exists at {}",
+            "✗".red(),
+            path.display()
+        );
+        return Ok(());
+    }
+
     let config = Config::new(path.clone());
     config.save()?;
 

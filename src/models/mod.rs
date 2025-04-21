@@ -1,15 +1,18 @@
 use std::collections::HashMap;
+use std::f32::consts::E;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, anyhow};
 use serde::{Deserialize, Serialize};
 
+
 mod dotfile;
 pub use dotfile::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(skip)]
     pub repo_path: PathBuf,
     pub dotfiles: HashMap<String, DotfileEntry>,
     pub staged: HashMap<String, DotfileEntry>,
@@ -34,13 +37,18 @@ impl Config {
     pub fn load(repo_path: &Path) -> Result<Self> {
         let config_path = repo_path.join(".dotzilla.json");
         if !config_path.exists() {
-            return Ok(Config::new(repo_path.to_path_buf()));
+            return Err(anyhow!(
+                "No dotzilla repository found at {}, please run 'dotzilla init'",
+                repo_path.display()
+            ));
         }
 
         let config_str = fs::read_to_string(&config_path)
             .with_context(|| format!("Failed to read config from {}", config_path.display()))?;
-        let config: Config = serde_json::from_str(&config_str)
+        let mut config: Config = serde_json::from_str(&config_str)
             .with_context(|| format!("Failed to parse config from {}", config_path.display()))?;
+        
+        config.repo_path = repo_path.to_path_buf(); 
         Ok(config)
     }
 
