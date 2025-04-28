@@ -1,5 +1,5 @@
 use home::home_dir;
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 /// Expand tilde to home directory in path
 pub fn expand_tilde(path: &str) -> PathBuf {
@@ -36,27 +36,22 @@ pub fn reduce_path_to_home(path: &str) -> PathBuf {
 /// Get full path of a file in the current working directory
 pub fn get_full_path(path: &str) -> PathBuf {
     let p = expand_tilde(path);
-    fs::canonicalize(path).unwrap_or_else(|_| {
-        if p.is_relative() {
-            let current_dir = std::env::current_dir().unwrap();
-            if path.starts_with("./") {
-                return current_dir.join(path.trim_start_matches("./"));
-            }
 
-            current_dir.join(path)
-        } else {
-            p
+    if p.is_relative() {
+        let current_dir = std::env::current_dir().unwrap();
+        if path.starts_with("./") {
+            return current_dir.join(path.trim_start_matches("./"));
         }
-    })
+
+        current_dir.join(path)
+    } else {
+        p
+    }
 }
 
 /// Replace the home directory to custom path
 pub fn replace_home(path: &str, new_home: &str) -> PathBuf {
     let path = get_full_path(path).to_string_lossy().to_string();
-
-    if path.starts_with("~") {
-        return PathBuf::from(path.replacen("~", new_home, 1));
-    }
 
     if let Some(home) = home_dir() {
         if let Some(home_str) = home.to_str() {
@@ -71,6 +66,8 @@ pub fn replace_home(path: &str, new_home: &str) -> PathBuf {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
 
     #[test]
@@ -107,6 +104,28 @@ mod tests {
                 compacted_path
             );
             assert_ne!(compacted_path, full_path);
+        }
+    }
+
+    #[test]
+    fn test_replace_home() {
+        let current_dir = std::env::current_dir().unwrap();
+        let files = fs::read_dir(current_dir).unwrap();
+        for file in files {
+            let file = file.unwrap();
+            let full_path = get_full_path(file.file_name().to_str().unwrap());
+            let replaced_path = replace_home(full_path.to_str().unwrap(), "/tmp");
+            let expected_path = full_path
+                .to_str()
+                .unwrap()
+                .replace(home_dir().unwrap().to_str().unwrap(), "/tmp");
+
+            assert_eq!(replaced_path.to_string_lossy(), expected_path);
+            println!(
+                "File: {:?} -> {:?}",
+                file.file_name().to_str().unwrap(),
+                replaced_path
+            );
         }
     }
 }

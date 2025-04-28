@@ -62,6 +62,13 @@ pub fn add_dotfile(mut config: Config, dotfile_path: DotPath) -> Result<()> {
                 dotfile_path.abs_target.display()
             )
         })?;
+
+        println!(
+            "{} Copied file from {} to {}",
+            "✓".green(),
+            dotfile_path.abs_path.display(),
+            dotfile_path.abs_target.display()
+        );
     }
 
     let mut entry = DotfileEntry::from_dotpath(&dotfile_path);

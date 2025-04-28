@@ -16,24 +16,20 @@ pub struct DotPath {
 
 impl DotPath {
     pub fn new(config: &Config, name: &str) -> Self {
-        let name = utils::expand_tilde(&name).to_string_lossy().to_string();
-
-        DotPath {
+        let dot = DotPath {
             rel_path: utils::reduce_path_to_home(&name),
             abs_path: utils::get_full_path(&name),
-            target: utils::replace_home(&name, config.repo_path.to_str().unwrap()),
-            abs_target: utils::get_full_path(
-                utils::replace_home(&name, config.repo_path.to_str().unwrap())
-                    .to_string_lossy()
-                    .as_ref(),
-            ),
+            target: utils::replace_home(&name, "."),
+            abs_target: utils::replace_home(&name, config.repo_path.to_str().unwrap()),
             target_staged: utils::replace_home(&name, config.staging_path.to_str().unwrap()),
             abs_target_staged: utils::get_full_path(
                 utils::replace_home(&name, config.staging_path.to_str().unwrap())
                     .to_string_lossy()
                     .as_ref(),
             ),
-        }
+        };
+
+        dot
     }
 
     pub fn from_path(config: &Config, path: &PathBuf) -> Self {

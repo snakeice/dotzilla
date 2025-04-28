@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 mod dotfile;
 pub use dotfile::*;
 
-mod path_name;
-pub use path_name::*;
+mod path;
+pub use path::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
