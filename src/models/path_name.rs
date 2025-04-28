@@ -17,7 +17,7 @@ pub struct DotPath {
 impl DotPath {
     pub fn new(config: &Config, name: &str) -> Self {
         let name = utils::expand_tilde(&name).to_string_lossy().to_string();
-        
+
         DotPath {
             rel_path: utils::reduce_path_to_home(&name),
             abs_path: utils::get_full_path(&name),

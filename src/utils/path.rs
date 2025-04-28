@@ -89,11 +89,7 @@ mod tests {
             let file_name = "./".to_string() + file.file_name().to_str().unwrap();
             let full_path = get_full_path(&file_name);
             assert!(full_path.exists());
-            println!(
-                "File: {:?} -> {:?}",
-                file_name,
-                full_path
-            );
+            println!("File: {:?} -> {:?}", file_name, full_path);
         }
     }
 

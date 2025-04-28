@@ -30,14 +30,30 @@ pub fn add_dotfile(mut config: Config, dotfile_path: DotPath) -> Result<()> {
         opts.overwrite = true;
         opts.skip_exist = false;
 
-        fs_extra::dir::copy(&dotfile_path.abs_path, &dotfile_path.abs_target, &opts)
-            .with_context(|| {
+        if fs::remove_dir_all(&dotfile_path.abs_target).is_ok() {
+            println!(
+                "{} Removed existing directory: {}",
+                "✓".green(),
+                dotfile_path.abs_target.display()
+            );
+        }
+
+        fs_extra::dir::copy(&dotfile_path.abs_path, &dotfile_path.abs_target, &opts).with_context(
+            || {
                 format!(
                     "Failed to copy directory from {} to {}",
                     dotfile_path.abs_path.display(),
                     dotfile_path.target.display()
                 )
-            })?;
+            },
+        )?;
+
+        println!(
+            "{} Copied directory from {} to {}",
+            "✓".green(),
+            dotfile_path.abs_path.display(),
+            dotfile_path.abs_target.display()
+        );
     } else {
         fs::copy(&dotfile_path.abs_path, &dotfile_path.abs_target).with_context(|| {
             format!(

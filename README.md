@@ -2,6 +2,30 @@
 
 A powerful, Git-inspired dotfiles manager with symbolic linking capabilities.
 
+## Table of Contents
+
+- [Dotzilla](#dotzilla)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [From Source](#from-source)
+    - [Using Cargo](#using-cargo)
+  - [Usage](#usage)
+    - [Initialize a Repository](#initialize-a-repository)
+    - [Adding Dotfiles](#adding-dotfiles)
+    - [Staging Files](#staging-files)
+    - [Unstaging Files](#unstaging-files)
+    - [Creating Symlinks](#creating-symlinks)
+    - [Viewing Status](#viewing-status)
+    - [Listing Tracked Files](#listing-tracked-files)
+    - [Comparing Files](#comparing-files)
+  - [Command Reference](#command-reference)
+  - [Example Workflow](#example-workflow)
+  - [Shell Completion](#shell-completion)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 ## Overview
 
 Dotzilla is a command-line tool designed to help you manage your dotfiles with a workflow inspired by Git. It allows you to track, stage, and link dotfiles between a central repository and their original locations on your system.
@@ -18,6 +42,7 @@ Dotzilla is a command-line tool designed to help you manage your dotfiles with a
   - Word-by-word diff option
   - Integration with external diff tools (vimdiff, meld, kdiff3, VS Code)
 - **Status Reporting**: View the status of your tracked and staged dotfiles
+- **Shell Completion**: Support for bash, zsh, fish, and other shells
 
 ## Installation
 
@@ -25,7 +50,7 @@ Dotzilla is a command-line tool designed to help you manage your dotfiles with a
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dotzilla.git
+git clone https://github.com/snakeice/dotzilla.git
 cd dotzilla
 
 # Build the project
@@ -34,6 +59,12 @@ cargo build --release
 # The binary will be available at target/release/dotzilla
 # Optionally, move it to a directory in your PATH
 cp target/release/dotzilla ~/.local/bin/
+```
+
+### Using Cargo
+
+```bash
+cargo install dotzilla-cli
 ```
 
 ## Usage
@@ -130,6 +161,7 @@ dotzilla diff .config
 | `status`                               | Show the status of tracked and staged dotfiles      |
 | `list`                                 | List all tracked dotfiles                           |
 | `diff <name> [--word] [--tool <tool>]` | Show differences between tracked and local dotfiles |
+| `completion <shell>`                   | Generate shell completion scripts                   |
 
 ## Example Workflow
 
@@ -177,6 +209,25 @@ dotzilla diff .config
    ```bash
    dotzilla add ~/.bashrc
    ```
+
+## Shell Completion
+
+Dotzilla supports shell completion for various shells, making it easier to use the command-line interface.
+
+Generate shell completion scripts:
+
+```bash
+# For Bash
+dotzilla completion bash > ~/.local/share/bash-completion/completions/dotzilla
+
+# For Zsh
+dotzilla completion zsh > ~/.zfunc/_dotzilla
+
+# For Fish
+dotzilla completion fish > ~/.config/fish/completions/dotzilla.fish
+```
+
+Make sure the respective directories exist and are in your shell's completion path.
 
 ## Contributing
 

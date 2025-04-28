@@ -14,7 +14,6 @@ pub fn commit_dotfiles(config: &mut Config) -> Result<()> {
     let mut commit_count = 0;
 
     for (dotpath, mut entry_staged) in std::mem::take(&mut config.get_staged()) {
-        
         if let Some(parent) = dotpath.abs_target.parent() {
             if !parent.exists() {
                 fs::create_dir_all(parent)?;

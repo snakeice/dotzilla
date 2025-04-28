@@ -26,7 +26,7 @@ pub fn stage_dotfile(config: &mut Config, dotfile_path: &DotPath) -> Result<()> 
                 parent.display()
             );
         }
-    } 
+    }
 
     println!(
         "{} Staging file: {} -> {}",
@@ -42,15 +42,18 @@ pub fn stage_dotfile(config: &mut Config, dotfile_path: &DotPath) -> Result<()> 
         opts.overwrite = true;
         opts.skip_exist = false;
 
-        fs_extra::dir::copy(&dotfile_path.abs_path, &dotfile_path.abs_target_staged, &opts).with_context(
-            || {
-                format!(
-                    "Failed to copy directory from {} to {}",
-                    dotfile_path.abs_path.display(),
-                    dotfile_path.target_staged.display()
-                )
-            },
-        )?;
+        fs_extra::dir::copy(
+            &dotfile_path.abs_path,
+            &dotfile_path.abs_target_staged,
+            &opts,
+        )
+        .with_context(|| {
+            format!(
+                "Failed to copy directory from {} to {}",
+                dotfile_path.abs_path.display(),
+                dotfile_path.target_staged.display()
+            )
+        })?;
     } else {
         fs::copy(&dotfile_path.abs_path, &dotfile_path.abs_target_staged).with_context(|| {
             format!(
