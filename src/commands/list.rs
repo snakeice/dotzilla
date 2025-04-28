@@ -7,20 +7,19 @@ pub fn list_dotfiles(config: &Config) -> Result<()> {
     println!("{} Dotfiles List", "✦".cyan());
     println!("{}", "===============".cyan());
 
-    if config.dotfiles.is_empty() {
+    if config.get().is_empty() {
         println!("No dotfiles tracked. Use 'dotzilla add <path>' to add dotfiles.");
         return Ok(());
     }
 
-    for (name, entry) in &config.dotfiles {
-        let staged = if config.staged.contains_key(name) {
+    for (dotfile_path, entry) in config.get() {
+        let staged = if config.get_staged().contains_key(&dotfile_path) {
             "(staged)".blue()
         } else {
             "".normal()
         };
 
-        println!("{} {} {}", "•".cyan(), name, staged);
-        println!("  Source: {}", entry.source.display());
+        println!("{} {} {}", "•".cyan(), dotfile_path, staged);
         println!("  Target: {}", entry.target.display());
         println!();
     }

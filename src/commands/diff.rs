@@ -6,7 +6,7 @@ use std::process::Command;
 use anyhow::{Context, Result, anyhow};
 use colored::*;
 
-use crate::models::Config;
+use crate::models::{Config, DotPath};
 use crate::utils::diff_tools;
 
 enum DiffStatus {
@@ -15,40 +15,44 @@ enum DiffStatus {
     Removed,
 }
 
-pub fn show_diff(config: &Config, name: &str, tool: Option<String>, word_diff: bool) -> Result<()> {
-    let entry = config.get_dotfile(name)?;
+pub fn show_diff(
+    config: &Config,
+    dotfile_path: DotPath,
+    tool: Option<String>,
+    word_diff: bool,
+) -> Result<()> {
+    let entry = config.get_dotfile(&dotfile_path)?;
     let repo_path = &entry.target;
-    let local_path = &entry.source;
 
-    if !local_path.exists() {
+    if !dotfile_path.abs_path.exists() {
         println!(
             "{} Local path does not exist: {}",
             "✗".red(),
-            local_path.display()
+            dotfile_path.abs_path.display()
         );
         return Ok(());
     }
 
-    if !repo_path.exists() {
+    if !&entry.target.exists() {
         println!(
             "{} Repository path does not exist: {}",
             "✗".red(),
-            repo_path.display()
+            &entry.target.display()
         );
         return Ok(());
     }
 
-    if local_path.is_dir() && repo_path.is_dir() {
-        return diff_directories(name, repo_path, local_path, tool);
+    if dotfile_path.abs_path.is_dir() && entry.target.is_dir() {
+        return diff_directories(dotfile_path, tool);
     }
 
     // If an external diff tool is specified, use it for both files and directories
     if let Some(tool_name) = tool {
-        return use_external_diff_tool(tool_name, repo_path, local_path);
+        return use_external_diff_tool(tool_name, &entry.target, &dotfile_path.abs_path);
     }
 
-    if !local_path.is_dir() && !repo_path.is_dir() {
-        return diff_files(name, repo_path, local_path, word_diff);
+    if !dotfile_path.abs_path.is_dir() && !&entry.target.is_dir() {
+        return diff_files(dotfile_path, word_diff);
     }
 
     println!(
@@ -69,7 +73,10 @@ pub fn show_diff(config: &Config, name: &str, tool: Option<String>, word_diff: b
     Ok(())
 }
 
-fn diff_files(name: &str, repo_file: &Path, local_file: &Path, word_diff: bool) -> Result<()> {
+fn diff_files(dotfile_path: DotPath, word_diff: bool) -> Result<()> {
+    let repo_file = &dotfile_path.target;
+    let local_file = &dotfile_path.abs_path;
+
     let local_content = fs::read_to_string(local_file)
         .with_context(|| format!("Failed to read local file: {}", local_file.display()))?;
     let repo_content = fs::read_to_string(repo_file)
@@ -83,7 +90,7 @@ fn diff_files(name: &str, repo_file: &Path, local_file: &Path, word_diff: bool) 
     println!(
         "{} Differences between {} and repository version:",
         "✦".cyan(),
-        name
+        dotfile_path.to_name().display()
     );
 
     // TODO: try to improve the diff output
@@ -98,17 +105,19 @@ fn diff_files(name: &str, repo_file: &Path, local_file: &Path, word_diff: bool) 
     Ok(())
 }
 
-fn diff_directories(
-    name: &str,
-    repo_dir: &Path,
-    local_dir: &Path,
-    tool: Option<String>,
-) -> Result<()> {
+fn diff_directories(dotfile_path: DotPath, tool: Option<String>) -> Result<()> {
+    let repo_dir = &dotfile_path.target;
+    let local_dir = &dotfile_path.abs_path;
+
     if let Some(tool_name) = tool {
         return use_external_diff_tool(tool_name, repo_dir, local_dir);
     }
 
-    println!("{} Comparing directory: {}", "✦".cyan(), name);
+    println!(
+        "{} Comparing directory: {}",
+        "✦".cyan(),
+        dotfile_path.to_name().display()
+    );
 
     let differences = compare_directories(repo_dir, local_dir)?;
 

@@ -1,2 +1,4 @@
 pub mod diff_tools;
-pub mod path;
+
+mod path;
+pub use path::*;

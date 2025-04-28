@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 
 mod add;
+mod commit;
 mod diff;
 mod init;
 mod link;
@@ -11,6 +12,7 @@ mod unstage;
 
 pub use add::add_dotfile;
 use clap_complete::Shell;
+pub use commit::commit_dotfiles;
 pub use diff::show_diff;
 pub use init::init_repo;
 pub use link::link_dotfiles;
@@ -19,7 +21,7 @@ pub use stage::stage_dotfile;
 pub use status::show_status;
 pub use unstage::unstage_dotfile;
 
-#[derive(Parser, )]
+#[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
@@ -56,6 +58,9 @@ pub enum Commands {
         /// Name of the dotfile to unstage
         name: String,
     },
+
+    /// Commit staged dotfiles to make them permanent
+    Commit,
 
     /// Link all staged dotfiles to their target locations
     Link,

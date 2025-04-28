@@ -1,56 +1,59 @@
 use std::fs;
-use std::path::PathBuf;
 
 use anyhow::{Context, Result, anyhow};
 use colored::*;
-use home::home_dir;
 
-use crate::models::{Config, DotfileEntry, DotfileStatus};
+use crate::models::{Config, DotPath, DotfileEntry, DotfileStatus};
 
-pub fn add_dotfile(mut config: Config, dotfile_path: String) -> Result<()> {
-    let path_str = dotfile_path.replace("~", home_dir().unwrap().to_str().unwrap());
-    let source_path = PathBuf::from(&path_str);
-
-    if !source_path.exists() {
+pub fn add_dotfile(mut config: Config, dotfile_path: DotPath) -> Result<()> {
+    if !dotfile_path.abs_path.exists() {
         return Err(anyhow!(
             "Dotfile at {} does not exist",
-            source_path.display()
+            dotfile_path.abs_path.display()
         ));
     }
 
-    let file_name = source_path.file_name().unwrap().to_str().unwrap();
-    let target_path = config.repo_path.join(file_name);
+    if let Some(parent) = dotfile_path.abs_target.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent).with_context(|| {
+                format!(
+                    "Failed to create directory for target path: {}",
+                    parent.display()
+                )
+            })?;
+        }
+    }
 
-    // Copy the file to the repo
-    if source_path.is_dir() {
-        fs_extra::dir::copy(
-            &source_path,
-            &config.repo_path,
-            &fs_extra::dir::CopyOptions::new(),
-        )
-        .with_context(|| {
-            format!(
-                "Failed to copy directory from {} to {}",
-                source_path.display(),
-                target_path.display()
-            )
-        })?;
+    if dotfile_path.abs_path.is_dir() {
+        let mut opts = fs_extra::dir::CopyOptions::new();
+        opts.copy_inside = true;
+        opts.overwrite = true;
+        opts.skip_exist = false;
+
+        fs_extra::dir::copy(&dotfile_path.abs_path, &dotfile_path.abs_target, &opts)
+            .with_context(|| {
+                format!(
+                    "Failed to copy directory from {} to {}",
+                    dotfile_path.abs_path.display(),
+                    dotfile_path.target.display()
+                )
+            })?;
     } else {
-        fs::copy(&source_path, &target_path).with_context(|| {
+        fs::copy(&dotfile_path.abs_path, &dotfile_path.abs_target).with_context(|| {
             format!(
                 "Failed to copy file from {} to {}",
-                source_path.display(),
-                target_path.display()
+                dotfile_path.abs_path.display(),
+                dotfile_path.abs_target.display()
             )
         })?;
     }
 
-    // Add to tracked dotfiles
-    let entry = DotfileEntry::new(source_path.clone(), target_path, DotfileStatus::Tracked);
+    let mut entry = DotfileEntry::from_dotpath(&dotfile_path);
+    entry.status = DotfileStatus::Tracked;
 
-    config.dotfiles.insert(file_name.to_string(), entry);
+    config.add(&dotfile_path, entry)?;
     config.save()?;
 
-    println!("{} Added dotfile: {}", "✓".green(), file_name);
+    println!("{} Added dotfile: {}", "✓".green(), dotfile_path);
     Ok(())
 }

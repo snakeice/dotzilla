@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+use super::DotPath;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DotfileEntry {
     pub source: PathBuf,
@@ -25,7 +27,11 @@ impl DotfileEntry {
         }
     }
 
-    pub fn set_status(&mut self, status: DotfileStatus) {
-        self.status = status;
+    pub fn from_dotpath(dotpath: &DotPath) -> Self {
+        DotfileEntry::new(
+            dotpath.rel_path.clone(),
+            dotpath.target.clone(),
+            DotfileStatus::Untracked,
+        )
     }
 }

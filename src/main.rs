@@ -1,14 +1,14 @@
 mod commands;
+mod generator;
 mod models;
 mod utils;
-mod generator;
 
 use anyhow::Result;
 use clap::{CommandFactory, Parser};
 use commands::{Cli, Commands};
 use generator::print_completions;
-use models::Config;
-use utils::path::expand_tilde;
+use models::{Config, DotPath};
+use utils::expand_tilde;
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -23,23 +23,30 @@ fn main() -> Result<()> {
         }
         Commands::Add { path } => {
             let config = Config::load(&repo_path)?;
-            commands::add_dotfile(config, path)
+            let dot_path = DotPath::new(&config, &path);
+            commands::add_dotfile(config, dot_path)
         }
         Commands::Stage { name } => {
             let mut config = Config::load(&repo_path)?;
-            commands::stage_dotfile(&mut config, &name)
+            let dot_path = DotPath::new(&config, &name);
+            commands::stage_dotfile(&mut config, &dot_path)
         }
         Commands::Unstage { name } => {
             let mut config = Config::load(&repo_path)?;
-            commands::unstage_dotfile(&mut config, &name)
+            let dot_path = DotPath::new(&config, &name);
+            commands::unstage_dotfile(&mut config, &dot_path)
+        }
+        Commands::Commit => {
+            let mut config = Config::load(&repo_path)?;
+            commands::commit_dotfiles(&mut config)
         }
         Commands::Link => {
             let config = Config::load(&repo_path)?;
             commands::link_dotfiles(&config)
         }
         Commands::Status => {
-            let config = Config::load(&repo_path)?;
-            commands::show_status(&config)
+            let mut config = Config::load(&repo_path)?;
+            commands::show_status(&mut config)
         }
         Commands::List => {
             let config = Config::load(&repo_path)?;
@@ -47,7 +54,8 @@ fn main() -> Result<()> {
         }
         Commands::Diff { name, tool, word } => {
             let config = Config::load(&repo_path)?;
-            commands::show_diff(&config, &name, tool, word)
+            let dot_path = DotPath::new(&config, &name);
+            commands::show_diff(&config, dot_path, tool, word)
         }
         Commands::Completion { shell } => {
             let mut cmd = Cli::command();

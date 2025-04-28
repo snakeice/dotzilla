@@ -1,8 +1,7 @@
 use std::io;
 
 use clap::Command;
-use clap_complete::{generate, Generator};
-
+use clap_complete::{Generator, generate};
 
 pub fn print_completions<G: Generator>(generator: G, cmd: &mut Command) {
     generate(

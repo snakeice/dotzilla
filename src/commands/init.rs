@@ -22,6 +22,21 @@ pub fn init_repo(path: PathBuf) -> Result<()> {
         return Ok(());
     }
 
+    let staging_path = path.join(".staging");
+    if !staging_path.exists() {
+        fs::create_dir_all(&staging_path).with_context(|| {
+            format!(
+                "Failed to create staging directory at {}",
+                staging_path.display()
+            )
+        })?;
+        println!(
+            "{} Created staging directory at {}",
+            "✓".green(),
+            staging_path.display()
+        );
+    }
+
     let config = Config::new(path.clone());
     config.save()?;
 
