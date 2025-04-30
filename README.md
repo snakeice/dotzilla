@@ -23,6 +23,7 @@ A powerful, Git-inspired dotfiles manager with symbolic linking capabilities.
   - [Command Reference](#command-reference)
   - [Example Workflow](#example-workflow)
   - [Shell Completion](#shell-completion)
+  - [Changelog](#changelog)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -228,6 +229,10 @@ dotzilla completion fish > ~/.config/fish/completions/dotzilla.fish
 ```
 
 Make sure the respective directories exist and are in your shell's completion path.
+
+## Changelog
+
+See the [CHANGELOG](./CHANGELOG) file for a detailed history of changes.
 
 ## Contributing
 

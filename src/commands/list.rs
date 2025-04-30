@@ -12,7 +12,7 @@ pub fn list_dotfiles(config: &Config) -> Result<()> {
         return Ok(());
     }
 
-    for (dotfile_path, entry) in config.get() {
+    for (dotfile_path, _) in config.get() {
         let staged = if config.get_staged().contains_key(&dotfile_path) {
             "(staged)".blue()
         } else {
@@ -20,8 +20,6 @@ pub fn list_dotfiles(config: &Config) -> Result<()> {
         };
 
         println!("{} {} {}", "•".cyan(), dotfile_path, staged);
-        println!("  Target: {}", entry.target.display());
-        println!();
     }
 
     Ok(())

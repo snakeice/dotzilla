@@ -1,7 +1,10 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use colored::*;
 
-use crate::models::{Config, DotfileStatus};
+use crate::{
+    models::{Config, DotfileStatus},
+    utils::path_compare::{self, CompareResult},
+};
 
 pub fn show_status(config: &Config) -> Result<()> {
     println!("{} Dotfiles Status", "✦".cyan());
@@ -17,7 +20,23 @@ pub fn show_status(config: &Config) -> Result<()> {
     println!("{}", "Tracked dotfiles:".bold());
     for (dotpath, entry) in config.get() {
         let status_str = match entry.status {
-            DotfileStatus::Tracked => "[Tracked]".green(),
+            DotfileStatus::Tracked => {
+                let compare_result =
+                    path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target).or_else(
+                        |err| {
+                            Err(anyhow!(
+                                "Error comparing files: {}. Please check the paths.",
+                                err
+                            ))
+                        },
+                    )?;
+
+                match compare_result {
+                    CompareResult::Equal => "[Tracked]".green(),
+                    CompareResult::NotEqual => "[Diff Detected]".yellow(),
+                    CompareResult::Linked => "[Linked]".blue(),
+                }
+            }
             DotfileStatus::Modified => "[Modified]".yellow(),
             _ => "[Unknown]".red(),
         };
@@ -32,7 +51,20 @@ pub fn show_status(config: &Config) -> Result<()> {
     } else {
         for (dotpath, _) in &staged {
             let stage_status = if dotpath.target_staged.exists() {
-                "[In Staging]".blue()
+                let compare_result =
+                    path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target_staged)
+                        .or_else(|err| {
+                            Err(anyhow!(
+                                "Error comparing files: {}. Please check the paths.",
+                                err
+                            ))
+                        })?;
+
+                match compare_result {
+                    CompareResult::Equal => "[In Staging]".green(),
+                    CompareResult::NotEqual => "[Diff Detected]".yellow(),
+                    CompareResult::Linked => "[Linked]".blue(),
+                }
             } else {
                 "[Pending]".yellow()
             };

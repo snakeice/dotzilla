@@ -1,0 +1,49 @@
+# Changelog
+
+All notable changes to Dotzilla will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.2.0] - 2025-04-30
+
+### Added
+
+- None
+
+### Changed
+
+- Updated the `list` command to show a less verbose output, focusing on listing only all tracked dotfiles.
+
+### Fixed
+
+- Adjusted `link` command to create symlinks in the target directory instead of the current working directory.
+- Adjusted `status` command to show the status of all dotfiles, with fast diff findings.
+
+## [0.1.0] - 2025-04-28
+
+### Added
+
+- Initial release of Dotzilla
+- Repository management with `init` command
+- File tracking with `add` command
+- Staging system with `stage` and `unstage` commands
+- Symbolic linking with `link` command
+- Status reporting with `status` command
+- File listing with `list` command
+- Diff functionality with support for:
+  - Basic file comparison
+  - Word-by-word diff option
+  - Directory comparison
+  - External diff tools integration (vimdiff, meld, kdiff3, VS Code)
+- Shell completion for bash, zsh, and fish
+
+### Changed
+
+- None (initial release)
+
+### Fixed
+
+- None (initial release)
+
+[0.1.0]: https://github.com/snakeice/dotzilla/releases/tag/v0.1.0

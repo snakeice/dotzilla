@@ -9,25 +9,52 @@ use crate::models::Config;
 
 pub fn link_dotfiles(config: &Config) -> Result<()> {
     if config.get().is_empty() {
-        println!("No dotfiles staged for linking. Use 'dotzilla stage <n>' to stage dotfiles.");
+        println!("No dotfiles linking. Use 'dotzilla add <n>' to add dotfiles.");
         return Ok(());
     }
 
     let mut success_count = 0;
     let mut error_count = 0;
 
-    for (dotfile_path, _) in &config.get_staged() {
-        let source = &dotfile_path.target;
+    for (dotfile_path, _) in &config.get() {
+        let source = &dotfile_path.abs_target;
         let target_path = &dotfile_path.abs_path;
 
         if target_path.exists() {
             if target_path.is_symlink() {
+                let target_link = fs::read_link(target_path).with_context(|| {
+                    format!("Failed to read symlink at {}", target_path.display())
+                })?;
+
+                if target_link == *source {
+                    println!(
+                        "{} Symlink already exists: {} -> {}",
+                        "✓".green(),
+                        dotfile_path.to_name().display(),
+                        source.display()
+                    );
+                    continue;
+                }
+
+                println!(
+                    "{} Existing symlink points to a different target: {} -> {}",
+                    "✗".red(),
+                    target_path.display(),
+                    target_link.display()
+                );
+
                 fs::remove_file(&target_path).with_context(|| {
                     format!(
                         "Failed to remove existing symlink at {}",
                         target_path.display()
                     )
                 })?;
+
+                println!(
+                    "{} Removed existing symlink at {}",
+                    "✓".green(),
+                    target_path.display()
+                );
             } else if target_path.is_dir() {
                 fs::remove_dir_all(&target_path).with_context(|| {
                     format!(
@@ -35,6 +62,12 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
                         target_path.display()
                     )
                 })?;
+
+                println!(
+                    "{} Removed existing directory at {}",
+                    "✓".green(),
+                    target_path.display()
+                );
             } else {
                 fs::remove_file(&target_path).with_context(|| {
                     format!(
@@ -42,6 +75,30 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
                         target_path.display()
                     )
                 })?;
+
+                println!(
+                    "{} Removed existing file at {}",
+                    "✓".green(),
+                    target_path.display()
+                );
+            }
+        } else {
+            if let Some(metadata) = fs::symlink_metadata(&target_path).ok() {
+                if metadata.file_type().is_symlink() {
+                    if fs::metadata(&target_path).is_err() {
+                        fs::remove_file(&target_path).with_context(|| {
+                            format!(
+                                "Failed to remove broken symlink at {}",
+                                target_path.display()
+                            )
+                        })?;
+                        println!(
+                            "{} Removed broken symlink at {}",
+                            "✓".green(),
+                            target_path.display()
+                        );
+                    }
+                }
             }
         }
 
