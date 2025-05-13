@@ -22,13 +22,8 @@ pub fn show_status(config: &Config) -> Result<()> {
         let status_str = match entry.status {
             DotfileStatus::Tracked => {
                 let compare_result =
-                    path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target).or_else(
-                        |err| {
-                            Err(anyhow!(
-                                "Error comparing files: {}. Please check the paths.",
-                                err
-                            ))
-                        },
+                    path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target).map_err(
+                        |err| anyhow!("Error comparing files: {}. Please check the paths.", err),
                     )?;
 
                 match compare_result {
@@ -44,20 +39,17 @@ pub fn show_status(config: &Config) -> Result<()> {
         println!("{} ({})", status_str, dotpath);
     }
 
-    println!("");
+    println!();
     println!("{}", "Staged for linking:".bold());
     if config.get_staged().is_empty() {
         println!("No dotfiles staged. Use 'dotzilla stage <name>' to stage dotfiles.");
     } else {
-        for (dotpath, _) in &staged {
+        for dotpath in staged.keys() {
             let stage_status = if dotpath.target_staged.exists() {
                 let compare_result =
                     path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target_staged)
-                        .or_else(|err| {
-                            Err(anyhow!(
-                                "Error comparing files: {}. Please check the paths.",
-                                err
-                            ))
+                        .map_err(|err| {
+                            anyhow!("Error comparing files: {}. Please check the paths.", err)
                         })?;
 
                 match compare_result {

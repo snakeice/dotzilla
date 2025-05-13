@@ -86,7 +86,7 @@ impl Config {
     pub fn get(&self) -> HashMap<DotPath, DotfileEntry> {
         self.dotfiles
             .iter()
-            .map(|(k, v)| (DotPath::from_path(self, k), v.clone()))
+            .map(|(k, v)| (DotPath::from_path(self, k.clone()), v.clone()))
             .collect::<HashMap<DotPath, DotfileEntry>>()
     }
 
@@ -117,7 +117,7 @@ impl Config {
     pub fn get_staged(&self) -> HashMap<DotPath, DotfileEntry> {
         self.staged
             .iter()
-            .map(|(k, v)| (DotPath::from_path(self, k), v.clone()))
+            .map(|(k, v)| (DotPath::from_path(self, k.clone()), v.clone()))
             .collect::<HashMap<DotPath, DotfileEntry>>()
     }
 }

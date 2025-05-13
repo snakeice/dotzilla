@@ -8,6 +8,7 @@ mod link;
 mod list;
 mod stage;
 mod status;
+mod unlink;
 mod unstage;
 
 pub use add::add_dotfile;
@@ -19,6 +20,7 @@ pub use link::link_dotfiles;
 pub use list::list_dotfiles;
 pub use stage::stage_dotfile;
 pub use status::show_status;
+pub use unlink::unlink_dotfiles;
 pub use unstage::unstage_dotfile;
 
 #[derive(Parser)]
@@ -64,6 +66,12 @@ pub enum Commands {
 
     /// Link all staged dotfiles to their target locations
     Link,
+
+    /// Unlink all tracked dotfiles
+    Unlink {
+        /// Unlink a specific dotfile
+        name: Option<String>,
+    },
 
     /// Show the status of tracked and staged dotfiles
     Status,

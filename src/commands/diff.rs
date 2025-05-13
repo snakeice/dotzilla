@@ -22,7 +22,6 @@ pub fn show_diff(
     word_diff: bool,
 ) -> Result<()> {
     let entry = config.get_dotfile(&dotfile_path)?;
-    let repo_path = &entry.target;
 
     if !dotfile_path.abs_path.exists() {
         println!(
@@ -33,16 +32,16 @@ pub fn show_diff(
         return Ok(());
     }
 
-    if !&entry.target.exists() {
+    if !&dotfile_path.abs_target.exists() {
         println!(
             "{} Repository path does not exist: {}",
             "✗".red(),
-            &entry.target.display()
+            &dotfile_path.abs_target.display()
         );
         return Ok(());
     }
 
-    if dotfile_path.abs_path.is_dir() && entry.target.is_dir() {
+    if dotfile_path.abs_path.is_dir() && dotfile_path.abs_target.is_dir() {
         return diff_directories(dotfile_path, tool);
     }
 
@@ -58,12 +57,12 @@ pub fn show_diff(
     println!(
         "{} Cannot compare: {} is a directory and {} is a file",
         "✗".red(),
-        if repo_path.is_dir() {
+        if dotfile_path.abs_target.is_dir() {
             "Repository path"
         } else {
             "Local path"
         },
-        if repo_path.is_dir() {
+        if dotfile_path.abs_target.is_dir() {
             "Local path"
         } else {
             "Repository path"
@@ -73,8 +72,8 @@ pub fn show_diff(
     Ok(())
 }
 
-fn diff_files(dotfile_path: DotPath, word_diff: bool) -> Result<()> {
-    let repo_file = &dotfile_path.target;
+fn diff_files(dotfile_path: DotPath, _word_diff: bool) -> Result<()> {
+    let repo_file = &dotfile_path.abs_target;
     let local_file = &dotfile_path.abs_path;
 
     let local_content = fs::read_to_string(local_file)
@@ -94,13 +93,14 @@ fn diff_files(dotfile_path: DotPath, word_diff: bool) -> Result<()> {
     );
 
     // TODO: try to improve the diff output
-    if word_diff {
-        let patch = diffy::create_patch(&repo_content, &local_content);
-        print!("{}", patch);
-    } else {
-        let patch = diffy::create_patch(&repo_content, &local_content);
-        print!("{}", patch);
-    }
+    // if word_diff {
+    //     let patch = diffy::create_patch(&repo_content, &local_content);
+    //     print!("{}", patch);
+    // } else {
+    let patch = diffy::create_patch(&repo_content, &local_content);
+
+    print!("{}", patch);
+    // }
 
     Ok(())
 }
@@ -126,15 +126,12 @@ fn diff_directories(dotfile_path: DotPath, tool: Option<String>) -> Result<()> {
         return Ok(());
     }
 
-    let mut sorted_diffs: Vec<(&PathBuf, &DiffStatus)> = differences
-        .iter()
-        .map(|(path, status)| (path, status))
-        .collect();
+    let mut sorted_diffs: Vec<(&PathBuf, &DiffStatus)> = differences.iter().collect();
 
     sorted_diffs.sort_by(|a, b| a.0.to_string_lossy().cmp(&b.0.to_string_lossy()));
 
     println!("{} Directory differences:", "✦".cyan());
-    println!("{:4} | {}", "Type", "Path");
+    println!("{:4} | Path", "Type");
     println!(
         "{}",
         "--------------------------------------------------------------------------------".dimmed()
@@ -173,7 +170,7 @@ fn compare_directories(repo_dir: &Path, local_dir: &Path) -> Result<HashMap<Path
         }
     }
 
-    for (rel_path, _) in &local_files {
+    for rel_path in local_files.keys() {
         let repo_path = repo_dir.join(rel_path);
 
         if !repo_path.exists() {

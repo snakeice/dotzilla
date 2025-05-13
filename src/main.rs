@@ -44,9 +44,13 @@ fn main() -> Result<()> {
             let config = Config::load(&repo_path)?;
             commands::link_dotfiles(&config)
         }
+        Commands::Unlink { name } => {
+            let config = Config::load(&repo_path)?;
+            commands::unlink_dotfiles(&config, name)
+        }
         Commands::Status => {
-            let mut config = Config::load(&repo_path)?;
-            commands::show_status(&mut config)
+            let config = Config::load(&repo_path)?;
+            commands::show_status(&config)
         }
         Commands::List => {
             let config = Config::load(&repo_path)?;

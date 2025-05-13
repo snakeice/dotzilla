@@ -29,12 +29,12 @@ pub fn commit_dotfiles(config: &mut Config) -> Result<()> {
             ));
 
             if dotpath.abs_target.exists() {
-                fs::rename(&dotpath.abs_target, &bpk_path).or_else(|err| {
-                    Err(anyhow!(
+                fs::rename(&dotpath.abs_target, &bpk_path).map_err(|err| {
+                    anyhow!(
                         "Failed to back up existing file: {}: {}",
                         dotpath.abs_target.display(),
                         err
-                    ))
+                    )
                 })?;
             }
 
@@ -48,20 +48,20 @@ pub fn commit_dotfiles(config: &mut Config) -> Result<()> {
 
             if bpk_path.exists() {
                 if bpk_path.is_dir() {
-                    fs::remove_dir_all(&bpk_path).or_else(|err| {
-                        Err(anyhow!(
+                    fs::remove_dir_all(&bpk_path).map_err(|err| {
+                        anyhow!(
                             "Failed to remove backup directory: {}: {}",
                             bpk_path.display(),
                             err
-                        ))
+                        )
                     })?;
                 } else {
-                    fs::remove_file(&bpk_path).or_else(|err| {
-                        Err(anyhow!(
+                    fs::remove_file(&bpk_path).map_err(|err| {
+                        anyhow!(
                             "Failed to remove backup file: {}: {}",
                             bpk_path.display(),
                             err
-                        ))
+                        )
                     })?;
                 }
                 println!(

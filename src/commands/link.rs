@@ -16,7 +16,7 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
     let mut success_count = 0;
     let mut error_count = 0;
 
-    for (dotfile_path, _) in &config.get() {
+    for dotfile_path in config.get().keys() {
         let source = &dotfile_path.abs_target;
         let target_path = &dotfile_path.abs_path;
 
@@ -43,7 +43,7 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
                     target_link.display()
                 );
 
-                fs::remove_file(&target_path).with_context(|| {
+                fs::remove_file(target_path).with_context(|| {
                     format!(
                         "Failed to remove existing symlink at {}",
                         target_path.display()
@@ -56,7 +56,7 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
                     target_path.display()
                 );
             } else if target_path.is_dir() {
-                fs::remove_dir_all(&target_path).with_context(|| {
+                fs::remove_dir_all(target_path).with_context(|| {
                     format!(
                         "Failed to remove existing directory at {}",
                         target_path.display()
@@ -69,7 +69,7 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
                     target_path.display()
                 );
             } else {
-                fs::remove_file(&target_path).with_context(|| {
+                fs::remove_file(target_path).with_context(|| {
                     format!(
                         "Failed to remove existing file at {}",
                         target_path.display()
@@ -82,23 +82,19 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
                     target_path.display()
                 );
             }
-        } else {
-            if let Some(metadata) = fs::symlink_metadata(&target_path).ok() {
-                if metadata.file_type().is_symlink() {
-                    if fs::metadata(&target_path).is_err() {
-                        fs::remove_file(&target_path).with_context(|| {
-                            format!(
-                                "Failed to remove broken symlink at {}",
-                                target_path.display()
-                            )
-                        })?;
-                        println!(
-                            "{} Removed broken symlink at {}",
-                            "✓".green(),
-                            target_path.display()
-                        );
-                    }
-                }
+        } else if let Ok(metadata) = fs::symlink_metadata(target_path) {
+            if metadata.file_type().is_symlink() && fs::metadata(target_path).is_err() {
+                fs::remove_file(target_path).with_context(|| {
+                    format!(
+                        "Failed to remove broken symlink at {}",
+                        target_path.display()
+                    )
+                })?;
+                println!(
+                    "{} Removed broken symlink at {}",
+                    "✓".green(),
+                    target_path.display()
+                );
             }
         }
 
@@ -110,7 +106,7 @@ pub fn link_dotfiles(config: &Config) -> Result<()> {
             }
         }
 
-        match unix_fs::symlink(source, &target_path) {
+        match unix_fs::symlink(source, target_path) {
             Ok(_) => {
                 println!(
                     "{} Linked: {} -> {}",

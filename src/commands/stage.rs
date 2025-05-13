@@ -5,7 +5,7 @@ use std::fs;
 use crate::models::{Config, DotPath, DotfileStatus};
 
 pub fn stage_dotfile(config: &mut Config, dotfile_path: &DotPath) -> Result<()> {
-    let entry = config.get_dotfile(&dotfile_path)?.clone();
+    let entry = config.get_dotfile(dotfile_path)?.clone();
     let mut staged_entry = entry.clone();
     staged_entry.status = DotfileStatus::Staged;
 
@@ -65,7 +65,7 @@ pub fn stage_dotfile(config: &mut Config, dotfile_path: &DotPath) -> Result<()> 
     }
 
     // Update the staged collection and save config
-    config.stage(&dotfile_path, staged_entry)?;
+    config.stage(dotfile_path, staged_entry)?;
     config.save()?;
 
     println!(
