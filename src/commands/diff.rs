@@ -106,7 +106,7 @@ fn diff_files(dotfile_path: DotPath, _word_diff: bool) -> Result<()> {
 }
 
 fn diff_directories(dotfile_path: DotPath, tool: Option<String>) -> Result<()> {
-    let repo_dir = &dotfile_path.target;
+    let repo_dir = &dotfile_path.abs_target;
     let local_dir = &dotfile_path.abs_path;
 
     if let Some(tool_name) = tool {
