@@ -23,7 +23,13 @@ pub fn show_status(config: &Config) -> Result<()> {
             DotfileStatus::Tracked => {
                 let compare_result =
                     path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target).map_err(
-                        |err| anyhow!("Error comparing files: {}. Please check the paths.", err),
+                        |err| {
+                            anyhow!(
+                                "Error comparing files: {}. Please check the paths {}",
+                                err,
+                                dotpath.abs_path.display()
+                            )
+                        },
                     )?;
 
                 match compare_result {
@@ -49,7 +55,11 @@ pub fn show_status(config: &Config) -> Result<()> {
                 let compare_result =
                     path_compare::compare_paths(&dotpath.abs_path, &dotpath.abs_target_staged)
                         .map_err(|err| {
-                            anyhow!("Error comparing files: {}. Please check the paths.", err)
+                            anyhow!(
+                                "Error comparing files: {}. Please check the paths {}",
+                                err,
+                                dotpath.abs_path.display()
+                            )
                         })?;
 
                 match compare_result {

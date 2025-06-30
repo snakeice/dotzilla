@@ -6,7 +6,7 @@ use std::process::Command;
 use anyhow::{Context, Result, anyhow};
 use colored::*;
 
-use crate::models::{Config, DotPath};
+use crate::models::DotPath;
 use crate::utils::diff_tools;
 
 enum DiffStatus {
@@ -15,14 +15,7 @@ enum DiffStatus {
     Removed,
 }
 
-pub fn show_diff(
-    config: &Config,
-    dotfile_path: DotPath,
-    tool: Option<String>,
-    word_diff: bool,
-) -> Result<()> {
-    let entry = config.get_dotfile(&dotfile_path)?;
-
+pub fn show_diff(dotfile_path: DotPath, tool: Option<String>, word_diff: bool) -> Result<()> {
     if !dotfile_path.abs_path.exists() {
         println!(
             "{} Local path does not exist: {}",
@@ -47,10 +40,10 @@ pub fn show_diff(
 
     // If an external diff tool is specified, use it for both files and directories
     if let Some(tool_name) = tool {
-        return use_external_diff_tool(tool_name, &entry.target, &dotfile_path.abs_path);
+        return use_external_diff_tool(tool_name, &dotfile_path.abs_path, &dotfile_path.abs_target);
     }
 
-    if !dotfile_path.abs_path.is_dir() && !&entry.target.is_dir() {
+    if !dotfile_path.abs_path.is_dir() && !&dotfile_path.abs_target.is_dir() {
         return diff_files(dotfile_path, word_diff);
     }
 

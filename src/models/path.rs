@@ -16,7 +16,7 @@ pub struct DotPath {
 
 impl DotPath {
     pub fn new(config: &Config, name: &str) -> Self {
-        let dot = DotPath {
+        DotPath {
             rel_path: utils::reduce_path_to_home(name),
             abs_path: utils::get_full_path(name),
             target: utils::replace_home(name, "."),
@@ -27,9 +27,7 @@ impl DotPath {
                     .to_string_lossy()
                     .as_ref(),
             ),
-        };
-
-        dot
+        }
     }
 
     pub fn from_path(config: &Config, path: PathBuf) -> Self {

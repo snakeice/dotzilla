@@ -59,7 +59,7 @@ fn main() -> Result<()> {
         Commands::Diff { name, tool, word } => {
             let config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &name);
-            commands::show_diff(&config, dot_path, tool, word)
+            commands::show_diff(dot_path, tool, word)
         }
         Commands::Completion { shell } => {
             let mut cmd = Cli::command();
