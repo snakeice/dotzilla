@@ -5,6 +5,7 @@ use anyhow::{Context, Result};
 use colored::*;
 
 use crate::models::Config;
+use crate::utils::filter::filter_dotfiles_contains;
 
 pub fn unlink_dotfiles(config: &Config, name: Option<String>) -> Result<()> {
     if config.get().is_empty() {
@@ -16,13 +17,7 @@ pub fn unlink_dotfiles(config: &Config, name: Option<String>) -> Result<()> {
     let mut error_count = 0;
 
     let dotfiles = config.get();
-    let filtered_dotfiles = dotfiles.iter().filter(|(path, _)| {
-        if let Some(name_str) = &name {
-            path.to_name().to_string_lossy().contains(name_str)
-        } else {
-            true
-        }
-    });
+    let filtered_dotfiles = filter_dotfiles_contains(dotfiles.iter(), name.as_deref());
 
     for (dotfile_path, _) in filtered_dotfiles {
         let source = &dotfile_path.abs_target;

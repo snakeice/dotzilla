@@ -6,17 +6,34 @@ use colored::*;
 use log::error;
 
 use crate::models::Config;
+use crate::utils::filter::filter_dotfiles_exact;
 
-pub fn link_dotfiles(config: &Config) -> Result<()> {
+use crate::utils;
+
+pub fn link_dotfiles(config: &Config, name: Option<String>) -> Result<()> {
     if config.get().is_empty() {
         println!("No dotfiles linking. Use 'dotzilla add <n>' to add dotfiles.");
         return Ok(());
     }
 
+    if name.is_none() {
+        println!("No dotfiles specified. I will link all dotfiles.");
+
+        // confirm
+        let confirm = utils::confirm("Do you want to link all dotfiles? (y/n)", Some(false));
+        if !confirm {
+            println!("Aborting linking of dotfiles.");
+            return Ok(());
+        }
+    }
+
     let mut success_count = 0;
     let mut error_count = 0;
 
-    for dotfile_path in config.get().keys() {
+    let dotfiles = config.get();
+    let filtered_dotfiles = filter_dotfiles_exact(dotfiles.iter(), name.as_deref());
+
+    for (dotfile_path, _) in filtered_dotfiles {
         let source = &dotfile_path.abs_target;
         let target_path = &dotfile_path.abs_path;
 

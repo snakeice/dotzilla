@@ -40,9 +40,9 @@ fn main() -> Result<()> {
             let mut config = Config::load(&repo_path)?;
             commands::commit_dotfiles(&mut config)
         }
-        Commands::Link => {
+        Commands::Link { name } => {
             let config = Config::load(&repo_path)?;
-            commands::link_dotfiles(&config)
+            commands::link_dotfiles(&config, name)
         }
         Commands::Unlink { name } => {
             let config = Config::load(&repo_path)?;

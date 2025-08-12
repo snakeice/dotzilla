@@ -65,7 +65,10 @@ pub enum Commands {
     Commit,
 
     /// Link all staged dotfiles to their target locations
-    Link,
+    Link {
+        /// Name of the dotfile to link
+        name: Option<String>,
+    },
 
     /// Unlink all tracked dotfiles
     Unlink {
