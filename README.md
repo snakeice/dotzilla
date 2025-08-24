@@ -12,6 +12,7 @@ A powerful, Git-inspired dotfiles manager with symbolic linking capabilities.
     - [From Source](#from-source)
     - [Using Cargo](#using-cargo)
   - [Usage](#usage)
+    - [Launch Terminal User Interface](#launch-terminal-user-interface)
     - [Initialize a Repository](#initialize-a-repository)
     - [Adding Dotfiles](#adding-dotfiles)
     - [Removing Dotfiles](#removing-dotfiles)
@@ -30,10 +31,11 @@ A powerful, Git-inspired dotfiles manager with symbolic linking capabilities.
 
 ## Overview
 
-Dotzilla is a command-line tool designed to help you manage your dotfiles with a workflow inspired by Git. It allows you to track, stage, and link dotfiles between a central repository and their original locations on your system.
+Dotzilla is a Terminal User Interface (TUI) tool designed to help you manage your dotfiles with a workflow inspired by Git. It launches an interactive interface by default, and also provides command-line options for scripting and automation. It allows you to track, stage, and link dotfiles between a central repository and their original locations on your system.
 
 ## Features
 
+- **Terminal User Interface**: Interactive TUI for easy dotfile management
 - **Repository Management**: Initialize and maintain a centralized dotfiles repository
 - **Tracking System**: Add and remove dotfiles from your repository
 - **Staging Workflow**: Stage files before linking, similar to Git's staging area
@@ -70,6 +72,39 @@ cargo install dotzilla-cli
 ```
 
 ## Usage
+
+### Launch Terminal User Interface
+
+The TUI launches by default when you run dotzilla without any commands:
+
+```bash
+dotzilla
+```
+
+You can also explicitly launch it with:
+
+```bash
+dotzilla tui
+```
+
+The TUI provides a visual interface for managing your dotfiles with the following features:
+
+- **Tracked Tab**: View and manage all tracked dotfiles
+- **Staged Tab**: View and manage staged dotfiles ready for linking
+- **Help Tab**: View keyboard shortcuts and commands
+
+**Keyboard Shortcuts:**
+
+- `↑/k` or `↓/j` - Navigate up/down
+- `Tab`/`Shift+Tab` - Switch between tabs
+- `a` - Add a new dotfile
+- `d` - Remove selected dotfile
+- `s` - Stage/unstage selected dotfile
+- `l` - Link all staged dotfiles
+- `u` - Unlink all dotfiles
+- `c` - Commit all staged dotfiles
+- `r` - Refresh data
+- `q` - Quit
 
 ### Initialize a Repository
 
@@ -169,6 +204,7 @@ dotzilla diff .config
 
 | Command                                | Description                                         |
 | -------------------------------------- | --------------------------------------------------- |
+| `tui`                                  | Launch the Terminal User Interface                  |
 | `init [path]`                          | Initialize a new dotfiles repository                |
 | `add <path>`                           | Add a dotfile to tracking                           |
 | `remove <name> [--keep]`               | Remove a dotfile from tracking                      |
@@ -181,6 +217,8 @@ dotzilla diff .config
 | `completion <shell>`                   | Generate shell completion scripts                   |
 
 ## Example Workflow
+
+### Using the Command Line
 
 1. Initialize your dotfiles repository:
 
@@ -236,6 +274,29 @@ dotzilla diff .config
    # Or just remove from tracking, keeping the file
    dotzilla remove .vimrc --keep
    ```
+
+### Using the TUI
+
+Alternatively, you can use the interactive Terminal User Interface for a more visual experience. The TUI is the default interface and launches automatically:
+
+1. Launch the TUI (default behavior):
+
+   ```bash
+   dotzilla
+   ```
+
+   Or explicitly:
+
+   ```bash
+   dotzilla tui
+   ```
+
+2. Use the keyboard shortcuts to navigate and manage your dotfiles:
+   - Navigate between tracked and staged dotfiles using `Tab`
+   - Add new dotfiles with `a`
+   - Stage/unstage files with `s`
+   - Link all staged files with `l`
+   - Press `?` or go to the Help tab for a complete list of shortcuts
 
 ## Shell Completion
 

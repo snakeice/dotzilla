@@ -29,7 +29,7 @@ pub use unstage::unstage_dotfile;
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
 
     /// Path to the dotfiles repository
     #[arg(short, long, default_value = "~/dotfiles", env = "DOTZILLA_REPO")]
@@ -112,4 +112,7 @@ pub enum Commands {
         /// Generate shell completion script
         shell: Option<Shell>,
     },
+
+    /// Launch the Terminal User Interface
+    Tui,
 }

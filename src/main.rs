@@ -1,6 +1,7 @@
 mod commands;
 mod generator;
 mod models;
+mod tui;
 mod utils;
 
 use anyhow::Result;
@@ -17,62 +18,67 @@ fn main() -> Result<()> {
     let repo_path = expand_tilde(&cli.repo);
 
     match cli.command {
-        Commands::Init { path } => {
+        Some(Commands::Init { path }) => {
             let init_path = expand_tilde(&path);
             commands::init_repo(init_path)
         }
-        Commands::Add { path } => {
+        Some(Commands::Add { path }) => {
             let config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &path);
             commands::add_dotfile(config, dot_path)
         }
-        Commands::Remove { name, keep } => {
+        Some(Commands::Remove { name, keep }) => {
             let config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &name);
             commands::remove_dotfile(config, dot_path, keep)
         }
-        Commands::Stage { name } => {
+        Some(Commands::Stage { name }) => {
             let mut config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &name);
             commands::stage_dotfile(&mut config, &dot_path)
         }
-        Commands::Unstage { name } => {
+        Some(Commands::Unstage { name }) => {
             let mut config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &name);
             commands::unstage_dotfile(&mut config, &dot_path)
         }
-        Commands::Commit => {
+        Some(Commands::Commit) => {
             let mut config = Config::load(&repo_path)?;
             commands::commit_dotfiles(&mut config)
         }
-        Commands::Link { name } => {
+        Some(Commands::Link { name }) => {
             let config = Config::load(&repo_path)?;
             commands::link_dotfiles(&config, name)
         }
-        Commands::Unlink { name } => {
+        Some(Commands::Unlink { name }) => {
             let config = Config::load(&repo_path)?;
             commands::unlink_dotfiles(&config, name)
         }
-        Commands::Status => {
+        Some(Commands::Status) => {
             let config = Config::load(&repo_path)?;
             commands::show_status(&config)
         }
-        Commands::List => {
+        Some(Commands::List) => {
             let config = Config::load(&repo_path)?;
             commands::list_dotfiles(&config)
         }
-        Commands::Diff { name, tool, word } => {
+        Some(Commands::Diff { name, tool, word }) => {
             let config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &name);
             commands::show_diff(dot_path, tool, word)
         }
-        Commands::Completion { shell } => {
+        Some(Commands::Completion { shell }) => {
             let mut cmd = Cli::command();
             cmd.set_bin_name("dotzilla");
             if let Some(shell) = shell {
                 print_completions(shell, &mut cmd);
             }
             Ok(())
+        }
+        Some(Commands::Tui) => tui::run(repo_path.to_string_lossy().to_string()),
+        None => {
+            // Default to TUI when no command is provided
+            tui::run(repo_path.to_string_lossy().to_string())
         }
     }
 }
