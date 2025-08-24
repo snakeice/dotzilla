@@ -14,6 +14,7 @@ A powerful, Git-inspired dotfiles manager with symbolic linking capabilities.
   - [Usage](#usage)
     - [Initialize a Repository](#initialize-a-repository)
     - [Adding Dotfiles](#adding-dotfiles)
+    - [Removing Dotfiles](#removing-dotfiles)
     - [Staging Files](#staging-files)
     - [Unstaging Files](#unstaging-files)
     - [Creating Symlinks](#creating-symlinks)
@@ -34,7 +35,7 @@ Dotzilla is a command-line tool designed to help you manage your dotfiles with a
 ## Features
 
 - **Repository Management**: Initialize and maintain a centralized dotfiles repository
-- **Tracking System**: Add and track dotfiles in your repository
+- **Tracking System**: Add and remove dotfiles from your repository
 - **Staging Workflow**: Stage files before linking, similar to Git's staging area
 - **Symbolic Linking**: Create symlinks from your repository to system locations
 - **Diff Support**:
@@ -87,6 +88,20 @@ dotzilla add ~/.bashrc
 ```
 
 This copies the file to your dotfiles repository and begins tracking it.
+
+### Removing Dotfiles
+
+Remove a dotfile from tracking:
+
+```bash
+dotzilla remove .bashrc
+```
+
+This removes the dotfile from tracking and by default will ask for confirmation before deleting the file from the repository. Use the `--keep` flag to only remove from tracking without deleting the file:
+
+```bash
+dotzilla remove .bashrc --keep
+```
 
 ### Staging Files
 
@@ -156,6 +171,7 @@ dotzilla diff .config
 | -------------------------------------- | --------------------------------------------------- |
 | `init [path]`                          | Initialize a new dotfiles repository                |
 | `add <path>`                           | Add a dotfile to tracking                           |
+| `remove <name> [--keep]`               | Remove a dotfile from tracking                      |
 | `stage <name>`                         | Stage a dotfile for linking                         |
 | `unstage <name>`                       | Unstage a dotfile                                   |
 | `link`                                 | Link all staged dotfiles to their target locations  |
@@ -209,6 +225,16 @@ dotzilla diff .config
 
    ```bash
    dotzilla add ~/.bashrc
+   ```
+
+8. If you no longer need to track a dotfile, remove it:
+
+   ```bash
+   # Remove from tracking and delete the file (with confirmation)
+   dotzilla remove .vimrc
+
+   # Or just remove from tracking, keeping the file
+   dotzilla remove .vimrc --keep
    ```
 
 ## Shell Completion

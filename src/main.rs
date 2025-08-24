@@ -26,6 +26,11 @@ fn main() -> Result<()> {
             let dot_path = DotPath::new(&config, &path);
             commands::add_dotfile(config, dot_path)
         }
+        Commands::Remove { name, keep } => {
+            let config = Config::load(&repo_path)?;
+            let dot_path = DotPath::new(&config, &name);
+            commands::remove_dotfile(config, dot_path, keep)
+        }
         Commands::Stage { name } => {
             let mut config = Config::load(&repo_path)?;
             let dot_path = DotPath::new(&config, &name);

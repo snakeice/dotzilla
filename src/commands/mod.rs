@@ -6,6 +6,7 @@ mod diff;
 mod init;
 mod link;
 mod list;
+mod remove;
 mod stage;
 mod status;
 mod unlink;
@@ -18,6 +19,7 @@ pub use diff::show_diff;
 pub use init::init_repo;
 pub use link::link_dotfiles;
 pub use list::list_dotfiles;
+pub use remove::remove_dotfile;
 pub use stage::stage_dotfile;
 pub use status::show_status;
 pub use unlink::unlink_dotfiles;
@@ -47,6 +49,16 @@ pub enum Commands {
     Add {
         /// Path to the dotfile
         path: String,
+    },
+
+    /// Remove a dotfile from tracking
+    Remove {
+        /// Name of the dotfile to remove
+        name: String,
+
+        /// Keep the file in the repository (only remove from tracking)
+        #[arg(short, long)]
+        keep: bool,
     },
 
     /// Stage a dotfile for linking
